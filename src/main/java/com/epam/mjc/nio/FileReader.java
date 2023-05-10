@@ -14,15 +14,16 @@ public class FileReader {
 
         try (FileInputStream fis = new FileInputStream(file)){
             int i;
-            String data = "";
+            StringBuilder sb = new StringBuilder();
             while ((i =fis.read()) != -1){
-            data += (char) i;
+            sb.append((char)i);
             }
-
+            String data = sb.toString();
             newProfile = createProfile(data);
         } catch (IOException e){
             e.printStackTrace();
         }
+
         return newProfile;
     }
 
@@ -36,7 +37,7 @@ public class FileReader {
             return profileMap;
     }
 
-    public Profile createProfile(String data) {
+    public Profile createProfile(String data) throws FileBadFormatException {
         Profile newProfile = new Profile();
         Map<String, String> profileMap = getProfileMap(data);
         for(Map.Entry<String, String> entry: profileMap.entrySet()){
@@ -45,13 +46,16 @@ public class FileReader {
                     newProfile.setName(entry.getValue());
                     break;
                 case "Age":
-                    newProfile.setAge(Integer.getInteger(entry.getValue()));
+                    newProfile.setAge(Integer.parseInt(entry.getValue()));
                     break;
                 case "Email":
                     newProfile.setEmail(entry.getValue());
                     break;
                 case "Phone":
-                    newProfile.setPhone(Long.getLong(entry.getValue()));
+                    newProfile.setPhone(Long.parseLong(entry.getValue()));
+                    break;
+                default:
+                    throw new FileBadFormatException("The data in the file has a bad format" + entry.getKey() );
             }
         }
         return newProfile;
